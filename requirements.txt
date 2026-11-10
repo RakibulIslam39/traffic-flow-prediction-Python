@@ -1,0 +1,10 @@
+# Modern stack (Phase 2). Python >= 3.10.
+# Keras 3 runs on TensorFlow, JAX or PyTorch; the code is backend-agnostic,
+# but results in this repo were produced with the TensorFlow backend.
+tensorflow>=2.16
+keras>=3.4
+numpy
+pandas
+scikit-learn
+matplotlib
+h5py
