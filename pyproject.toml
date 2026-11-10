@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traffic-flow"
+version = "0.1.0"
+description = "Short-term traffic flow prediction with LSTM, GRU and Stacked Auto-Encoders"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+  "tensorflow>=2.16",
+  "keras>=3.4",
+  "numpy",
+  "pandas",
+  "scikit-learn",
+  "matplotlib",
+  "h5py",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+filterwarnings = [
+  "ignore:__array__ implementation doesn't accept a copy keyword:DeprecationWarning",
+]

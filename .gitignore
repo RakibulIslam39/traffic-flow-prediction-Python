@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Newly trained artifacts stay local; only the original weights are tracked
+artifacts/*
+!artifacts/legacy/
+!artifacts/keras3/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
