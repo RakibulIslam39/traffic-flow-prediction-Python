@@ -1,25 +1,14 @@
 [build-system]
-<<<<<<< HEAD
 requires = ["setuptools>=77"]
-=======
-requires = ["setuptools>=61"]
->>>>>>> origin/main
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "traffic-flow"
-<<<<<<< HEAD
 version = "0.6.0"
 description = "Short-term traffic flow prediction with LSTM, GRU and Stacked Auto-Encoders"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-=======
-version = "0.1.0"
-description = "Short-term traffic flow prediction with LSTM, GRU and Stacked Auto-Encoders"
-readme = "README.md"
-license = { file = "LICENSE" }
->>>>>>> origin/main
 requires-python = ">=3.10"
 dependencies = [
   "tensorflow>=2.16",
@@ -31,12 +20,9 @@ dependencies = [
   "h5py",
 ]
 
-<<<<<<< HEAD
 [project.optional-dependencies]
 app = ["fastapi", "uvicorn", "streamlit"]
 
-=======
->>>>>>> origin/main
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -44,9 +30,6 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 filterwarnings = [
-<<<<<<< HEAD
   "ignore:Using `httpx` with `starlette.testclient` is deprecated",
-=======
->>>>>>> origin/main
   "ignore:__array__ implementation doesn't accept a copy keyword:DeprecationWarning",
 ]

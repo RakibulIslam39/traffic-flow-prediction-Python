@@ -7,11 +7,7 @@ import pytest
 pytest.importorskip("keras")
 
 from traffic_flow import train  # noqa: E402
-<<<<<<< HEAD
 from traffic_flow.data import make_datasets, process_data  # noqa: E402
-=======
-from traffic_flow.data import process_data  # noqa: E402
->>>>>>> origin/main
 
 ATTR = "Lane 1 Flow (Veh/5 Minutes)"
 
@@ -45,7 +41,6 @@ def test_one_epoch_trains_and_saves_keras_file(tiny_data, tmp_path, name):
     model = keras.saving.load_model(os.path.join(out, name + ".keras"))
     X = X_train if name == "saes" else X_train.reshape(*X_train.shape, 1)
     assert model.predict(X[:4], verbose=0).shape == (4, 1)
-<<<<<<< HEAD
 
 
 def test_training_with_chronological_validation_logs_val_loss(tiny_data, tmp_path):
@@ -107,5 +102,3 @@ def test_legacy_gates_option_builds_legacy_layers(tiny_data, tmp_path):
               "legacy_gates": True}
     hist = train.run("gru", d["X_train"], d["y_train"], config)
     assert hist.model.layers[0].get_weights()[2].shape == (192,)   # reset_after=False
-=======
->>>>>>> origin/main

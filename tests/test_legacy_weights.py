@@ -21,11 +21,7 @@ EXPECTED = {"lstm": (7.21, 98.05), "gru": (7.20, 99.32), "saes": (7.06, 92.08)}
 @pytest.mark.skipif(not os.path.exists(os.path.join(LEGACY, "lstm.h5")),
                     reason="legacy weights not available")
 def test_legacy_weights_reproduce_readme_metrics():
-<<<<<<< HEAD
     loaded, _ = load_models(LEGACY, legacy=True)
-=======
-    loaded = load_models(LEGACY, legacy=True)
->>>>>>> origin/main
     # The original README numbers were produced with timestamp-unaware windowing.
     y_true, preds = predict_all(loaded, TRAIN, TEST, contiguous=False)
     for name, (mae, mse) in EXPECTED.items():

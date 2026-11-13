@@ -16,9 +16,6 @@ artifacts/*
 .DS_Store
 .idea/
 .vscode/
-<<<<<<< HEAD
 
 # Downloaded benchmark data (see scripts/download_pems08.sh)
 data/pems08/
-=======
->>>>>>> origin/main

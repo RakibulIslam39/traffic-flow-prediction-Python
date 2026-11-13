@@ -15,7 +15,6 @@ Size: train = 7,776 rows (27 days x 288), test = 4,320 rows (15 days x 288).
 Known issues (to be handled in Phase 3): the timestamp column is read as plain text and its
 date format/continuity has not been verified; a handful of zero readings (6 in train) may be
 missing data rather than real zero flow.
-<<<<<<< HEAD
 
 ## PeMS08 (optional, step 4)
 
@@ -23,5 +22,3 @@ missing data rather than real zero flow.
 5-minute steps). It is not committed; download it with `scripts/download_pems08.sh`. The file
 has no timestamps: `scripts/step4_experiment.py` assumes it starts on Friday 1 July 2016, which
 matches its weekly pattern (lower weekends, a low Monday 4 July).
-=======
->>>>>>> origin/main
