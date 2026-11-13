@@ -1,0 +1,5 @@
+# Forecaster API and dashboard (optional; the models and tests do not need these)
+-r requirements.txt
+fastapi
+uvicorn
+streamlit
