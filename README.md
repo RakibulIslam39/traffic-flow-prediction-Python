@@ -30,11 +30,14 @@ redistribution. Data come from the Caltrans Performance Measurement System (PeMS
 │   ├── data.py         # loading, scaling, windowing
 │   ├── models.py       # LSTM, GRU, SAEs definitions (Keras 3)
 │   ├── legacy.py       # load original Keras 2.1 .h5 weights into the new models
+<<<<<<< HEAD
 │   ├── baselines.py    # Persistence, Ridge, gradient boosting
 │   ├── experiment.py   # multi-seed runs: python -m traffic_flow.experiment
 │   ├── forecast.py     # multi-horizon forecaster (gradient boosting + time features)
 │   ├── predict.py      # python -m traffic_flow.predict
 │   ├── api.py          # FastAPI app: uvicorn traffic_flow.api:app
+=======
+>>>>>>> origin/main
 │   ├── metrics.py      # MAE, MSE, RMSE, MAPE, R², explained variance
 │   ├── train.py        # python -m traffic_flow.train --model lstm|gru|saes|all
 │   └── evaluate.py     # python -m traffic_flow.evaluate [--legacy]
@@ -57,10 +60,15 @@ Requires Python 3.10+.
 ```bash
 make install       # or: pip install -r requirements.txt && pip install -e .
 
+<<<<<<< HEAD
 # Train (stops by itself, usually after 60-90 epochs; --original-recipe for the old settings)
 python -m traffic_flow.train --model lstm        # or gru, saes, all (about a minute each)
 python -m traffic_flow.train --model all --features               # with time-of-day inputs (better)
 python -m traffic_flow.train --model all --features --horizon 12 --out-dir artifacts/h60   # 60 minutes ahead
+=======
+# Train (600 epochs; use --epochs 2 for a quick check)
+python -m traffic_flow.train --model lstm        # or gru, saes, all
+>>>>>>> origin/main
 
 # Evaluate models trained by `train.py` (default folder: artifacts/)
 python -m traffic_flow.evaluate
@@ -75,6 +83,7 @@ python -m traffic_flow.evaluate --legacy --legacy-windows
 Evaluation writes `metrics.csv` and `comparison.png` to `artifacts/eval/` (or `--out-dir`).
 The plot shows the first full day of the test set.
 
+<<<<<<< HEAD
 ### Forecasts, API and dashboard
 
 The forecaster takes the last hour of readings and predicts 5, 15, 30 and 60 minutes ahead.
@@ -130,6 +139,8 @@ python -m traffic_flow.experiment --seeds 1 2 3     # or: make experiment (about
 
 It is resumable: finished runs are kept in `artifacts/experiment/runs.csv` and skipped.
 
+=======
+>>>>>>> origin/main
 ### Makefile shortcuts
 
 ```bash
@@ -138,7 +149,10 @@ make test           # unit and regression tests (~20 s)
 make smoke          # whole pipeline on 2 epochs in a temp dir, with output checks (~1 min)
 make train MODEL=lstm EPOCHS=600 SEED=42
 make evaluate
+<<<<<<< HEAD
 make experiment SEEDS="1 2 3" EPOCHS=600   # multi-seed comparison with baselines
+=======
+>>>>>>> origin/main
 make reproduce      # check that the original weights still give the README numbers
 make help           # list everything
 ```
@@ -164,6 +178,7 @@ in the original README. The rest run quickly on tiny synthetic data.
 
 ## Results
 
+<<<<<<< HEAD
 All numbers are on the test set (15 days), with windows that never span a gap in the
 timestamps. Neural models: mean ± standard deviation over 3 seeds, trained on 22 days with the
 last 5 training days held out for validation. Raw files: `docs/results/step2/`.
@@ -302,6 +317,59 @@ The "original windowing" column reproduces the original README exactly (`make re
 These weights are still slightly better than the retrained models, most clearly on MAPE
 (16–18% against 20–22%). They were trained on all 27 days rather than 22, and how they were
 trained is not known, so the reason for the gap is open.
+=======
+**Original weights** (`--legacy`, reproduce the original README exactly):
+
+| Model | MAE | MSE | RMSE | MAPE | R² | Explained var. |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| LSTM | 7.216 | 98.05 | 9.90 | 16.59% | 0.9396 | 0.9419 |
+| GRU  | 7.202 | 99.32 | 9.97 | 16.78% | 0.9389 | 0.9389 |
+| SAEs | 7.058 | 92.08 | 9.60 | 17.80% | 0.9433 | 0.9443 |
+
+**Retrained with the Keras 3 code** (`train.py --model all --seed 42`, 600 epochs, `artifacts/keras3/`).
+These were trained with the **old** windowing (see below), so they are not yet comparable with the
+corrected evaluation:
+
+| Model | MAE | MSE | RMSE | MAPE | R² | Explained var. |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| LSTM | 7.688 | 105.62 | 10.28 | 24.43% | 0.9350 | 0.9396 |
+| GRU  | 7.776 | 107.98 | 10.39 | 24.89% | 0.9335 | 0.9385 |
+| SAEs | 8.065 | 115.56 | 10.75 | 25.13% | 0.9289 | 0.9355 |
+
+The retrained models are about 6–14% worse on MAE than the original weights, and they do
+not reproduce the original numbers. Single seed only. The likely cause is that `train.py`
+uses the modern `sigmoid` gate for the recurrent layers, not the legacy `hard_sigmoid`
+gate the original weights were trained with. This is a hypothesis that has not been tested
+yet.
+
+**Corrected windowing** (current default): windows never span a gap in the timestamps. The
+original weights give MAE 7.28 / 7.26 / 7.12 (LSTM / GRU / SAEs) with it, compared with 7.22 /
+7.20 / 7.06 under the original windowing. Retraining with the corrected windows is the next step.
+
+**Baselines** (same test windows):
+
+| Baseline | MAE | RMSE | MAPE |
+| --- | :---: | :---: | :---: |
+| Persistence (previous 5-min value) | 8.34 | 11.31 | 20.56% |
+| Seasonal naive (same time yesterday) | 10.21 | 14.06 | 24.43% |
+
+The neural models improve MAE over plain persistence by only 3–14%. The retrained models
+beat persistence on MAE but not on MAPE. A proper baseline comparison is part of Phase 3.
+
+![evaluation](docs/images/eva.png)
+
+**Baseline check (computed on `data/raw/test.csv`, same windows as the models):**
+
+| Baseline | MAE | RMSE | MAPE |
+| --- | :---: | :---: | :---: |
+| Persistence (predict previous 5-min value) | 8.34 | 11.31 | 20.56% |
+| Seasonal naive (same time yesterday) | 10.21 | 14.06 | 24.43% |
+
+The neural models improve MAE over plain persistence by only about 14%. A proper baseline
+comparison is part of Phase 3.
+
+![evaluation](docs/images/eva.png)
+>>>>>>> origin/main
 
 ## Issues found and fixed in the testing pass
 
@@ -319,8 +387,13 @@ trained is not known, so the reason for the gap is open.
 ## Known limitations
 
 - Single detector, single lane, univariate input, one-step-ahead only.
+<<<<<<< HEAD
 - With the default 5 validation days the models train on 22 of the 27 days. `--val-days 0`
   trains on everything but then has no early stopping; set `--epochs` (about 80) yourself.
+=======
+- Training windows are shuffled before `validation_split`, so the validation loss leaks
+  (overlapping windows) and cannot be trusted; no early stopping.
+>>>>>>> origin/main
 - Missing values are filled with 0. The raw files contain no NaNs, and the few zero readings
   are mostly genuine low-traffic hours, so this has limited effect.
 - The "SAEs" layers are trained to predict the target, not to reconstruct the input.
@@ -328,6 +401,7 @@ trained is not known, so the reason for the gap is open.
 
 ## Roadmap
 
+<<<<<<< HEAD
 - [x] Repo cleanup, structure, attribution
 - [x] Modern stack (Keras 3 / TensorFlow 2); original weights still load
 - [x] Testing pass: gap-aware windows, smoke test, Makefile, CI
@@ -336,6 +410,15 @@ trained is not known, so the reason for the gap is open.
 - [x] **Step 3 (features and horizons)** — time-of-day features, 15/30/60-minute forecasts. No neural model beat gradient boosting, so no new architectures were added
 - [x] **Step 4 (data)** — PeMS08 benchmark: with 40 days the LSTM draws level with gradient boosting on one sensor; naive pooling of sensors hurts
 - [x] **Step 5 (usability)** — `predict` command, HTTP API, dashboard (no config file or Docker image yet)
+=======
+- [x] **Phase 1** — repo cleanup, structure, attribution, tests for the data pipeline
+- [~] **Phase 2** — modern stack (Keras 3 / TF 2) done; retrained models do not yet match the original accuracy (see Results)
+- [x] **Testing pass** — end-to-end smoke test, Makefile, CI, bug fixes (see above)
+- [ ] **Phase 3** — chronological split, proper validation, baselines, multi-seed evaluation
+- [ ] **Phase 4** — time features, multi-step horizons, new models
+- [ ] **Phase 5** — CLI/config, API + dashboard, Docker, CI
+- [ ] **Phase 6** — documentation and report
+>>>>>>> origin/main
 
 ## References
 

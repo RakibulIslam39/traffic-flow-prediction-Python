@@ -2,13 +2,20 @@
 PY ?= python3
 EPOCHS ?= 600
 SEED ?= 42
+<<<<<<< HEAD
 SEEDS ?= 1 2 3
+=======
+>>>>>>> origin/main
 MODEL ?= all
 
 export TF_CPP_MIN_LOG_LEVEL := 2
 export TF_ENABLE_ONEDNN_OPTS := 0
 
+<<<<<<< HEAD
 .PHONY: help install install-dev test smoke train evaluate experiment forecaster predict api dashboard legacy-eval reproduce ci clean
+=======
+.PHONY: help install install-dev test smoke train evaluate legacy-eval reproduce ci clean
+>>>>>>> origin/main
 
 help:  ## show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -17,21 +24,33 @@ install:  ## install the package and runtime dependencies
 	$(PY) -m pip install -r requirements.txt
 	$(PY) -m pip install -e . --no-deps
 
+<<<<<<< HEAD
 install-dev: install  ## also install the API, dashboard and test tools
 	$(PY) -m pip install -r requirements-dev.txt
 
 test:  ## unit and regression tests (about a minute)
+=======
+install-dev: install  ## also install test tools
+	$(PY) -m pip install -r requirements-dev.txt
+
+test:  ## unit and regression tests (about 20 s)
+>>>>>>> origin/main
 	PYTHONPATH=src $(PY) -m pytest -q
 
 smoke:  ## full pipeline on 2 epochs in a temp dir, with output checks (about 1 min)
 	PYTHON=$(PY) scripts/smoke_test.sh
 
+<<<<<<< HEAD
 train:  ## train models: make train MODEL=lstm|gru|saes|all SEED=42 (EPOCHS is the maximum)
+=======
+train:  ## train models: make train MODEL=lstm|gru|saes|all EPOCHS=600 SEED=42
+>>>>>>> origin/main
 	PYTHONPATH=src $(PY) -m traffic_flow.train --model $(MODEL) --epochs $(EPOCHS) --seed $(SEED)
 
 evaluate:  ## evaluate models trained into artifacts/
 	PYTHONPATH=src $(PY) -m traffic_flow.evaluate
 
+<<<<<<< HEAD
 experiment:  ## multi-seed comparison with baselines: make experiment SEEDS="1 2 3" (resumable, ~10 min)
 	PYTHONPATH=src $(PY) -m traffic_flow.experiment --seeds $(SEEDS) --epochs $(EPOCHS)
 
@@ -47,6 +66,8 @@ api:  ## start the HTTP API on http://127.0.0.1:8000 (docs at /docs)
 dashboard:  ## start the dashboard in your browser
 	$(PY) -m streamlit run dashboard/app.py
 
+=======
+>>>>>>> origin/main
 legacy-eval:  ## evaluate the original Keras 2.1 weights (original windowing = README numbers)
 	PYTHONPATH=src $(PY) -m traffic_flow.evaluate --legacy --legacy-windows --out-dir artifacts/eval-legacy
 

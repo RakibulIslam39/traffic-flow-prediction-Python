@@ -31,6 +31,7 @@ def load_series(path):
     return times, flow
 
 
+<<<<<<< HEAD
 def _window_starts(times, lags, contiguous, horizon=1):
     """Target positions ``i`` whose window is usable.
 
@@ -42,10 +43,18 @@ def _window_starts(times, lags, contiguous, horizon=1):
     span = lags + horizon - 1          # rows between the first input and the target
     if not contiguous:
         return list(range(span, n))
+=======
+def _window_starts(times, lags, contiguous):
+    """Target positions ``i`` for which the window ``i-lags .. i`` is usable."""
+    n = len(times)
+    if not contiguous:
+        return list(range(lags, n))
+>>>>>>> origin/main
     times = pd.Series(pd.to_datetime(times)).reset_index(drop=True)
     # seg[i] = index of the first row of the contiguous segment containing row i
     breaks = np.asarray((times.diff() != INTERVAL).fillna(True), dtype=bool)
     seg = np.maximum.accumulate(np.where(breaks, np.arange(n), 0))
+<<<<<<< HEAD
     return [i for i in range(span, n) if i - span >= seg[i]]
 
 
@@ -71,6 +80,13 @@ def time_features(times):
     tod = (t.dt.hour * 60 + t.dt.minute).values / 1440.0 * 2 * np.pi
     dow = t.dt.dayofweek.values / 7.0 * 2 * np.pi
     return np.column_stack([np.sin(tod), np.cos(tod), np.sin(dow), np.cos(dow)])
+=======
+    return [i for i in range(lags, n) if i - lags >= seg[i]]
+
+
+def _windows(flow, starts, lags):
+    return np.array([flow[i - lags: i + 1] for i in starts])
+>>>>>>> origin/main
 
 
 def process_data(train, test, lags, contiguous=True):
@@ -98,6 +114,7 @@ def process_data(train, test, lags, contiguous=True):
     return (train_w[:, :-1], train_w[:, -1], test_w[:, :-1], test_w[:, -1], scaler)
 
 
+<<<<<<< HEAD
 def make_datasets(train, test, lags, val_days=5, contiguous=True, shuffle=True,
                   horizon=1, features=False):
     """Train / validation / test windows with a chronological validation split.
@@ -165,6 +182,8 @@ def make_datasets(train, test, lags, val_days=5, contiguous=True, shuffle=True,
     }
 
 
+=======
+>>>>>>> origin/main
 def target_times(test, lags, contiguous=True):
     """Timestamp of each test target, in the same order as ``process_data``'s ``y_test``."""
     times, _ = load_series(test)

@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # End-to-end smoke test of the whole pipeline on tiny settings.
+<<<<<<< HEAD
 #   train (all models, 2 epochs) -> evaluate -> legacy evaluate -> multi-seed experiment
 #   -> check every output.
+=======
+#   train (all models, 2 epochs) -> evaluate -> legacy evaluate -> check every output.
+>>>>>>> origin/main
 # Runs in a temporary directory so the repository is not touched.
 # Usage: scripts/smoke_test.sh [--keep]
 set -euo pipefail
@@ -35,6 +39,7 @@ step "evaluate the original legacy weights"
 "$PY" -m traffic_flow.evaluate --legacy --legacy-windows --out-dir "$WORK/legacy" \
   --train-csv "$ROOT/data/raw/train.csv" --test-csv "$ROOT/data/raw/test.csv" >/dev/null
 
+<<<<<<< HEAD
 step "15-minute forecast with time features (1 model, 1 epoch) and its evaluation"
 "$PY" -m traffic_flow.train --model gru --epochs 1 --horizon 3 --features \
   --out-dir "$WORK/h3" --quiet \
@@ -60,23 +65,35 @@ for f in runs.csv summary_default.csv baselines_default.csv; do
   [[ -s "$WORK/experiment/$f" ]] || fail "missing experiment output $f"
 done
 
+=======
+>>>>>>> origin/main
 step "check metrics"
 "$PY" - "$WORK" <<'PYEOF'
 import math, sys, pandas as pd
 work = sys.argv[1]
 checks = {
+<<<<<<< HEAD
     "eval/metrics.csv": 6,     # 3 neural models + 3 baselines
     "legacy/metrics.csv": 6,
     "experiment/runs.csv": 2,  # 1 model x 2 seeds
     "h3eval/metrics.csv": 4,   # 1 neural model + 3 baselines
+=======
+    "eval/metrics.csv": 3,     # one row per model
+    "legacy/metrics.csv": 3,
+>>>>>>> origin/main
 }
 for rel, rows in checks.items():
     df = pd.read_csv(f"{work}/{rel}", index_col=0)
     assert len(df) == rows, f"{rel}: expected {rows} rows, got {len(df)}"
+<<<<<<< HEAD
     num = df.select_dtypes("number")
     assert all(math.isfinite(v) for v in num.values.ravel()), f"{rel}: non-finite metric"
     mae = "mae" if "mae" in df.columns else "test_mae"
     assert (df[mae] >= 0).all(), f"{rel}: negative MAE"
+=======
+    assert all(math.isfinite(v) for v in df.values.ravel()), f"{rel}: non-finite metric"
+    assert (df["mae"] >= 0).all(), f"{rel}: negative MAE"
+>>>>>>> origin/main
     print(f"{rel}: ok")
 legacy = pd.read_csv(f"{work}/legacy/metrics.csv", index_col=0)
 # the legacy weights must still reproduce the original README MAE (+/- 0.01)

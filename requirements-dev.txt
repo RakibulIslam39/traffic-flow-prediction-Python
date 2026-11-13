@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 -r requirements-app.txt
 pytest
 httpx
+=======
+-r requirements.txt
+pytest
+>>>>>>> origin/main

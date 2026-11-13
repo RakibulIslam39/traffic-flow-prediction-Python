@@ -34,11 +34,19 @@ def _recurrent_kwargs(cell, legacy):
     return kwargs
 
 
+<<<<<<< HEAD
 def _get_rnn(cell, units, legacy, n_features=1):
     layer = layers.LSTM if cell == "lstm" else layers.GRU
     kw = _recurrent_kwargs(cell, legacy)
     model = keras.Sequential(name=cell)
     model.add(keras.Input(shape=(units[0], n_features)))
+=======
+def _get_rnn(cell, units, legacy):
+    layer = layers.LSTM if cell == "lstm" else layers.GRU
+    kw = _recurrent_kwargs(cell, legacy)
+    model = keras.Sequential(name=cell)
+    model.add(keras.Input(shape=(units[0], 1)))
+>>>>>>> origin/main
     model.add(layer(units[1], return_sequences=True, **kw))
     model.add(layer(units[2], **kw))
     model.add(layers.Dropout(0.2))
@@ -46,6 +54,7 @@ def _get_rnn(cell, units, legacy, n_features=1):
     return model
 
 
+<<<<<<< HEAD
 def get_lstm(units, legacy=False, n_features=1):
     """LSTM model. ``units`` = [n_inputs(lags), hidden1, hidden2, n_outputs].
     ``n_features`` is the number of values per time step (1 = flow only)."""
@@ -56,6 +65,16 @@ def get_gru(units, legacy=False, n_features=1):
     """GRU model. ``units`` = [n_inputs(lags), hidden1, hidden2, n_outputs].
     ``n_features`` is the number of values per time step (1 = flow only)."""
     return _get_rnn("gru", units, legacy, n_features)
+=======
+def get_lstm(units, legacy=False):
+    """LSTM model. ``units`` = [n_inputs(lags), hidden1, hidden2, n_outputs]."""
+    return _get_rnn("lstm", units, legacy)
+
+
+def get_gru(units, legacy=False):
+    """GRU model. ``units`` = [n_inputs(lags), hidden1, hidden2, n_outputs]."""
+    return _get_rnn("gru", units, legacy)
+>>>>>>> origin/main
 
 
 def _get_sae(inputs, hidden, output):
