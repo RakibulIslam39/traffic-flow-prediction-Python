@@ -5,8 +5,6 @@ Load the original Keras 2.1 ``.h5`` files (``artifacts/legacy``) into Keras 3 mo
 are in the standard layout, so we rebuild the architecture (``legacy=True``) and copy the
 arrays over layer by layer.
 """
-import json
-
 import h5py
 import numpy as np
 

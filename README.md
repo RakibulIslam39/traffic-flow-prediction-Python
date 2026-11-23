@@ -50,8 +50,13 @@ redistribution. The data come from the Caltrans Performance Measurement System (
 
 **Requirements.** Python 3.11 or 3.12 (both are tested in CI; `pyproject.toml` declares 3.10
 or newer). TensorFlow publishes no builds for the newest Python releases: on Python 3.15, pip
-found no matching TensorFlow, so use 3.12 if your system Python is newer. On an Intel Mac pip
-installed TensorFlow 2.16.2, and training and evaluation worked.
+found no matching TensorFlow, so use 3.12 if your system Python is newer.
+
+**Intel Macs.** The newest TensorFlow available there is 2.16.2, which needs `protobuf<5`,
+while Streamlit 1.62 and later need `protobuf>=5.26.1`. pip therefore installs an older
+Streamlit (1.60 when we resolved the requirements for an Intel Mac). `requirements-app.txt`
+keeps Starlette below 1.4 on Intel Macs so that this older Streamlit works; see
+[Troubleshooting](#troubleshooting).
 
 ```bash
 git clone https://github.com/RakibulIslam39/traffic-flow-prediction-Python.git
@@ -70,7 +75,7 @@ again (`source .venv/bin/activate`) every time you open a new terminal.
 Then check the installation, train the models and look at the output:
 
 ```bash
-make test                                              # 73 tests, 1 to 4 minutes
+make test                                              # 74 tests, 1 to 4 minutes
 
 python -m traffic_flow.train --model all --features    # about a minute per model
 python -m traffic_flow.evaluate                        # table + artifacts/eval/comparison.png
@@ -347,7 +352,7 @@ skipped when you start it again. Runs with different `--tag` values are kept apa
 │   └── legacy.py        # loads the original Keras 2.1 .h5 weights into the new models
 ├── dashboard/app.py     # Streamlit dashboard
 ├── scripts/             # smoke_test.sh, download_pems08.sh, step4_experiment.py
-├── tests/               # 73 tests
+├── tests/               # 74 tests
 ├── data/raw/            # train.csv, test.csv  (see data/README.md)
 ├── artifacts/
 │   ├── keras3/          # 5-minute models with time features, seed 1
@@ -366,7 +371,7 @@ skipped when you start it again. Runs with different `--tag` values are kept apa
 ## Tests and CI
 
 ```bash
-make test        # 73 tests, 1 to 4 minutes depending on the machine
+make test        # 74 tests, 1 to 4 minutes depending on the machine
 make smoke       # the whole pipeline on tiny settings in a temporary folder, with output checks
 make reproduce   # the original weights still reproduce the original numbers
 ```
@@ -374,10 +379,22 @@ make reproduce   # the original weights still reproduce the original numbers
 The tests cover the data pipeline (gap-aware windows, chronological validation, time
 features), metrics, model construction, training with early stopping, the baselines, the
 forecaster, the command line, the API and the dashboard. One regression test checks that the
-original Keras 2.1 weights still give the original project's metrics.
+original Keras 2.1 weights still give the original project's metrics. Another starts the real
+Streamlit web server and requests the page, the favicon and the main script bundle, which
+catches server-side failures that running the dashboard script alone cannot see.
 
-GitHub Actions (`.github/workflows/ci.yml`) runs `pytest` and `scripts/smoke_test.sh` on
-Python 3.11 and 3.12 for every push and pull request; a run takes about three minutes.
+GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request, on every push to
+`main`, and every Monday morning (UTC), which catches new library releases that break the
+project. It has two jobs:
+
+- **lint**: fails on leftover merge-conflict markers (`<<<<<<<`) and on real bugs found by
+  Ruff (syntax errors, undefined names, unused imports). Style rules are deliberately not
+  enforced.
+- **test**: `pytest` and `scripts/smoke_test.sh` on Python 3.11 and 3.12.
+
+A newer push to the same branch cancels the run in progress, and a run takes about three
+minutes. CI runs on Linux, so it cannot reproduce problems that only occur on one platform,
+such as the Intel Mac issue below.
 
 ## Troubleshooting
 
@@ -388,7 +405,7 @@ Python 3.11 and 3.12 for every push and pull request; a run takes about three mi
 | pip finds no matching TensorFlow | Your Python is too new. Create the environment with Python 3.11 or 3.12. |
 | `make: *** missing separator`, or pip rejects `<<<<<<< HEAD` | A merge left conflict markers in the files. Find them with `grep -rn '<<<<<<<' --exclude-dir=.venv --exclude-dir=.git .` and resolve them. |
 | `evaluate` reports that no models were found | Train first (`python -m traffic_flow.train --model all --features`) or point it at the shipped models with `--weights-dir artifacts/keras3`. |
-| Terminal shows `Expected ASGI message 'http.response.start'` while the dashboard runs | The traceback is entirely inside Streamlit's web server, not this project. It appeared on macOS with Streamlit 1.67; we could not reproduce it elsewhere or identify the cause. Try a hard refresh (`Cmd+Shift+R`) or another browser; `evaluate` and `predict` give the same information without the dashboard. |
+| Terminal shows `Expected ASGI message 'http.response.start'` when the dashboard opens | Streamlit 1.57 to 1.61 combined with Starlette 1.5 or newer answers `GET /favicon.png` with HTTP 500. The dashboard itself works; only the browser tab icon is missing. Intel Macs end up on that Streamlit version (see Quick start). Fix: run `python -m pip install -r requirements-app.txt` again, which now keeps Starlette below 1.4 on Intel Macs, then restart the dashboard. Check with `python -m pip list \| grep -i -E "streamlit\|starlette"`: Starlette should show 1.3.x. |
 
 ## Towards real-world use
 
@@ -457,8 +474,9 @@ Open ideas, roughly in order of value:
 - Understanding why the original weights are slightly better on percentage error.
 - A configuration file and a Docker image.
 - Serving a neural model alongside the gradient-boosting forecaster.
-- CI hardening: require passing checks before merging to `main`, avoid duplicate runs on pull
-  requests, and add a lint step.
+- Branch protection on `main`: require a pull request and passing CI before merging (a GitHub
+  setting, not part of the repository).
+- A CI job on an Intel Mac runner, the only way CI could catch Intel-only dependency problems.
 
 ## References and license
 
