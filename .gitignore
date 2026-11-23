@@ -19,3 +19,7 @@ artifacts/*
 
 # Downloaded benchmark data (see scripts/download_pems08.sh)
 data/pems08/
+
+# Created by "streamlit skills"; the links point into the local virtual environment
+.agents/
+.claude/

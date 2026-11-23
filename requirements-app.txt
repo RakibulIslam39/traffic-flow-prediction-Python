@@ -3,3 +3,9 @@
 fastapi
 uvicorn
 streamlit
+
+# Intel Macs: TensorFlow stops at 2.16 there and needs protobuf<5, while Streamlit 1.62+ needs
+# protobuf>=5.26.1, so pip falls back to Streamlit 1.57-1.61. Those versions return HTTP 500 for
+# /favicon.png when combined with Starlette 1.5+ ("Expected ASGI message 'http.response.start'"),
+# so Starlette is kept at the range Streamlit 1.61 itself declares. Other platforms are unaffected.
+starlette<1.4; platform_system == "Darwin" and platform_machine == "x86_64"
